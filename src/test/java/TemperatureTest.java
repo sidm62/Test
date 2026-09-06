@@ -6,14 +6,14 @@ import static org.junit.Assert.assertEquals;
 public class TemperatureTest {
     @Test
     public void testCelsiusToFahrenheit() {
-        assertEquals(32, TemperatureConverter.celsiusToFahrenheit(0), 0.01);
-        assertEquals(212, TemperatureConverter.celsiusToFahrenheit(100), 0.01);
+        assertEquals(122, TemperatureConverter.celsiusToFahrenheit(50), 0.01);
+        assertEquals(626, TemperatureConverter.celsiusToFahrenheit(330), 0.01);
     }
 
     @Test
     public void testFahrenheitToCelsius() {
-        assertEquals(0, TemperatureConverter.fahrenheitToCelsius(32), 0.01);
-        assertEquals(100, TemperatureConverter.fahrenheitToCelsius(212), 0.01);
+        assertEquals(10, TemperatureConverter.fahrenheitToCelsius(50), 0.01);
+        assertEquals(25.5, TemperatureConverter.fahrenheitToCelsius(77.9), 0.01);
     }
 
     @Test
