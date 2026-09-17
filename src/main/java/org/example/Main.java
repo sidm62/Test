@@ -13,5 +13,8 @@ public class Main {
 
         System.out.println("Is the temperature extreme? " + TemperatureConverter.isExtremeTemperature(temp));
         input.close();
+        System.out.println("Temperature in Celsius from Kelvin" + TemperatureConverter.kelvinToCelsius(temp));
+
+
     }
 }

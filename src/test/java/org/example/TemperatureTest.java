@@ -1,7 +1,8 @@
-import org.example.TemperatureConverter;
-import org.junit.Test;
+package org.example;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TemperatureTest {
     @Test
@@ -21,6 +22,12 @@ public class TemperatureTest {
         assertEquals(true, TemperatureConverter.isExtremeTemperature(-50));
         assertEquals(true, TemperatureConverter.isExtremeTemperature(60));
         assertEquals(false, TemperatureConverter.isExtremeTemperature(20));
+    }
+    @Test
+    public void testiskelvinToCelsius() {
+        assertEquals(-243.14999999999998,TemperatureConverter.kelvinToCelsius(30));
+        assertEquals(-253.14999999999998,TemperatureConverter.kelvinToCelsius(20));
+
     }
 
 }
