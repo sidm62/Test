@@ -3,6 +3,7 @@ pipeline {
 
     environment {
 
+        PATH        = "C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
         DOCKER_USER = 'sidiiqm'
         IMAGE_NAME  = 'temperature-converter'
         IMAGE_TAG   = 'latest'
@@ -11,13 +12,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/sidm62/Test.git'
+                // Vaihdettu 'main' -> 'master'
+                git branch: 'master', url: 'https://github.com/sidm62/Test.git'
             }
         }
 
         stage('Build & Test') {
             steps {
-
                 bat 'mvn clean package jacoco:report'
             }
         }
@@ -37,7 +38,6 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASS')]) {
                     bat "echo %DOCKER_HUB_PASS% | docker login -u %DOCKER_HUB_USER% --password-stdin"
                     bat "docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%"
@@ -48,7 +48,6 @@ pipeline {
 
     post {
         always {
-
             bat 'docker logout'
         }
     }
