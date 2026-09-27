@@ -3,7 +3,7 @@ pipeline {
 
     environment {
 
-        PATH        = "C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
+        PATH        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
         DOCKER_USER = 'sidiiqm'
         IMAGE_NAME  = 'temperature-converter'
         IMAGE_TAG   = 'latest'
