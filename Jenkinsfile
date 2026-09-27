@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-
         PATH        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
         DOCKER_USER = 'sidiiqm'
         IMAGE_NAME  = 'temperature-converter'
@@ -12,7 +11,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Vaihdettu 'main' -> 'master'
                 git branch: 'master', url: 'https://github.com/sidm62/Test.git'
             }
         }
@@ -39,8 +37,8 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASS')]) {
-                    bat "echo %DOCKER_HUB_PASS% | docker login -u %DOCKER_HUB_USER% --password-stdin"
-                    bat "docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%"
+                    bat 'docker login -u %DOCKER_HUB_USER% -p %DOCKER_HUB_PASS%'
+                    bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                 }
             }
         }
