@@ -1,7 +1,9 @@
 package org.example;
 
+import javafx.application.Application;
+
 public class App {
     public static void main(String[] args) {
-        Main.launch(Main.class, args);
+        Application.launch(Main.class, args);
     }
 }

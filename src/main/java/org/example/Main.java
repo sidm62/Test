@@ -100,6 +100,9 @@ private void refreshTable() {
     tableView.getItems().clear();
     tableView.getItems().addAll(tempRecordDao.getAll());
 }
+
+
+
 }
 
 
