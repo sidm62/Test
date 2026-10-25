@@ -1,5 +1,6 @@
 package org.example;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -7,6 +8,7 @@ import java.util.Scanner;
 public class Main1 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+
         TemperatureConverter converter = new TemperatureConverter();
 
         System.out.println("Valitse kieli:");
@@ -21,7 +23,7 @@ public class Main1 {
             case 2 -> new Locale ("fi", "FI");
             case 3 -> new Locale("ja", "JP");
             case 4 -> new Locale("sv", "SE");
-            default -> Locale.getDefault();
+            default -> new Locale("fi", "FI");
         };
           ResourceBundle rb = ResourceBundle.getBundle("MessagesBundle", locale);
 
