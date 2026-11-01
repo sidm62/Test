@@ -17,7 +17,8 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                bat 'mvn clean package jacoco:report'
+                // Ajetaan kääntö, testit ja JaCoCo-raportointi
+                bat 'mvn clean package org.jacoco:jacoco-maven-plugin:report'
             }
         }
 
@@ -30,14 +31,19 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat "docker build -t %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG% ."
+                bat "docker build --no-cache -t %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG% ."
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'HUB_USER', passwordVariable: 'HUB_PASS')]) {
-                    bat '(echo|set /p="%HUB_PASS%")| docker login -u %HUB_USER% --password-stdin'
+                    // Windows-yhteensopiva ja turvallinen tapa kirjautua sisään
+                    bat '''
+                        echo %HUB_PASS% > temp_pass.txt
+                        type temp_pass.txt | docker login -u %HUB_USER% --password-stdin
+                        del temp_pass.txt
+                    '''
                     bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                 }
             }
