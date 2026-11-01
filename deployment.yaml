@@ -17,12 +17,12 @@ spec:
       containers:
         - name: temperature-converter-container
           image: sidiiqm/temperature-converter:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: DISPLAY
               value: "192.168.100.10:0.0"
             - name: DB_HOST
-              value: "host.minikube.internal" # Minikube-yhteensopiva osoite isäntäkoneelle
+              value: "host.minikube.internal"
             - name: DB_PORT
               value: "3306"
             - name: DB_NAME
