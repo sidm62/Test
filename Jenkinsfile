@@ -38,12 +38,8 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'HUB_USER', passwordVariable: 'HUB_PASS')]) {
-                    // Windows-yhteensopiva ja turvallinen tapa kirjautua sisään
-                    bat '''
-                        echo %HUB_PASS% > temp_pass.txt
-                        type temp_pass.txt | docker login -u %HUB_USER% --password-stdin
-                        del temp_pass.txt
-                    '''
+                    // Turvallinen tapa syöttää salasana Windows CMD:ssä ilman rivinvaihtoa
+                    bat '<nul set /p="%HUB_PASS%" | docker login -u %HUB_USER% --password-stdin'
                     bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                 }
             }
