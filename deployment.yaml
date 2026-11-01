@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: Always
           env:
             - name: DISPLAY
-              value: "host.docker.internal:0.0"
+              value: "192.168.100.10:0.0"
             - name: DB_HOST
-              value: "host.docker.internal"
+              value: "host.minikube.internal" # Minikube-yhteensopiva osoite isäntäkoneelle
             - name: DB_PORT
               value: "3306"
             - name: DB_NAME
