@@ -23,6 +23,7 @@ public class Main1 {
             case 2 -> new Locale ("fi", "FI");
             case 3 -> new Locale("ja", "JP");
             case 4 -> new Locale("sv", "SE");
+            case 5 -> new Locale("ar", "AR");
             default -> new Locale("fi", "FI");
         };
           ResourceBundle rb = ResourceBundle.getBundle("MessagesBundle", locale);

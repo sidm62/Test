@@ -14,14 +14,13 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>21</javafx.version>
+        <javafx.version>21.0.2</javafx.version>
         <mockito.version>5.11.0</mockito.version>
         <bytebuddy.version>1.14.12</bytebuddy.version>
     </properties>
 
     <dependencies>
 
-        <!-- Byte Buddy Agent (Tarvitaan Java 21+ Mockito inline-mockaukseen) -->
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
@@ -29,27 +28,46 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- JavaFX Controls & FXML -->
+        <!-- JavaFX Controls (Standardi + Linux Native) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
 
+        <!-- JavaFX FXML (Standardi + Linux Native) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
 
-        <!-- Database Driver (MariaDB) -->
+        <!-- JavaFX Graphics (Linux Native - sisältää libprism_sw.so) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
             <version>3.3.2</version>
         </dependency>
 
-        <!-- JUnit 5 (Testing) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -63,7 +81,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Mockito (Mocking DB Connections in Tests) -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -93,27 +110,6 @@
                 </configuration>
             </plugin>
 
-            <!-- JaCoCo Code Coverage -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Maven Surefire Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -123,7 +119,6 @@
                     <argLine>
                         -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
                         -XX:+EnableDynamicAgentLoading
-                        @{argLine}
                     </argLine>
                 </configuration>
             </plugin>
@@ -138,7 +133,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Shade Plugin (Fat-JAR Pakkaus) -->
+            <!-- Maven Shade Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

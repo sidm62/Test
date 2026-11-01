@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temperature-converter-deployment
+  labels:
+    app: temperature-converter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temperature-converter
+  template:
+    metadata:
+      labels:
+        app: temperature-converter
+    spec:
+      containers:
+        - name: temperature-converter-container
+          image: sidiiqm/temperature-converter:latest
+          imagePullPolicy: Always
+          env:
+            - name: DISPLAY
+              value: "host.docker.internal:0.0"
+            - name: DB_HOST
+              value: "host.docker.internal"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: "temp"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASS
+              value: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temperature-converter-service
+spec:
+  type: NodePort
+  selector:
+    app: temperature-converter
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
