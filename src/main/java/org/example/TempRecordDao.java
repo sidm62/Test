@@ -10,13 +10,11 @@ import java.util.List;
 public class TempRecordDao {
     private Connection connection;
 
-
     public TempRecordDao() {}
 
     public TempRecordDao(Connection connection) {
         this.connection = connection;
     }
-
 
     private Connection getConnection() throws SQLException {
         return (this.connection != null) ? this.connection : DBConnection.getConnection();
@@ -87,5 +85,36 @@ public class TempRecordDao {
             e.printStackTrace();
         }
         return records;
+    }
+
+    public List<UnitDTO> getUnitsByLanguage(String langCode) {
+        List<UnitDTO> units = new ArrayList<>();
+
+        String sql = """
+            SELECT u.id, u.unit_code, ut.name, ut.description 
+            FROM temperature_units u
+            JOIN temperature_unit_translations ut ON u.id = ut.unit_id
+            WHERE ut.lang = ?
+        """;
+
+        try {
+            Connection conn = getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, langCode);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        units.add(new UnitDTO(
+                                rs.getInt("id"),
+                                rs.getString("unit_code"),
+                                rs.getString("name"),
+                                rs.getString("description")
+                        ));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return units;
     }
 }
