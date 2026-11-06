@@ -3,26 +3,28 @@
 **Course:** Software Engineering / Object-Oriented Programming  
 **Author:** sidm62  
 **Repository:** https://github.com/sidm62/Test  
+**Docker Hub Image:** https://hub.docker.com/r/sidiiqm/temperature-converter  
 
 ---
 
 ## 1. Assignment Description
 
 ### Problem Statement
-Temperature conversions across different scale units (Celsius, Fahrenheit, Kelvin) and tracking historical logs require reliable conversion algorithms, a user-friendly graphical interface, and persistent data storage. This application provides a Java-based Graphical User Interface (GUI) to perform unit conversions and manage persistent temperature logs in a database.
+Temperature conversions across different scale units (Celsius, Fahrenheit, Kelvin) and tracking historical logs require reliable conversion algorithms, a user-friendly graphical interface, and persistent data storage. This application provides a Java-based Graphical User Interface (GUI) to perform unit conversions and manage persistent temperature logs in a database with full multi-language localization (fi, en, ja, sv, ar).
 
 ### Key Requirements
 * **Temperature Conversion:** Convert between Celsius, Fahrenheit, and Kelvin units (e.g., `kelvinToCelsius` method).
-* **Graphical User Interface (GUI):** JavaFX-based desktop application entry point initialized via `Application.launch()`.
-* **Database & DAO Integration:** Store and manage historical temperature records (`TempRecord`) and temperature units (`TemperatureUnit`) using the Data Access Object (DAO) pattern.
-* **CI/CD & Containerization:** Jenkins pipeline integration (`Jenkinsfile`) and Docker support (`Dockerfile`) for automated building and containerized deployment.
+* **Graphical User Interface (GUI):** JavaFX-based desktop application supporting dynamic language switching and Right-to-Left (RTL) layout support for Arabic.
+* **Database & DAO Integration:** Store and manage historical temperature records (`TempRecord`) and temperature units (`UnitDTO`) using the Data Access Object (DAO) pattern.
+* **CI/CD & Containerization:** Jenkins pipeline integration (`Jenkinsfile`), Docker support (`Dockerfile`), and Kubernetes deployment (`minikube`) for automated containerized deployment.
 * **Test Coverage:** Automated unit testing suite with JUnit 5 and JaCoCo code coverage reporting.
 
 ### Specific Deliverables
-* Complete JavaFX application source code (`App.java`, `Main.java`, `TemperatureConverter.java`).
-* DAO layer and database connectivity implementation (`DBConnection.java`, `TempRecordDao.java`, `TemperatureUnitDAO.java`).
+* Complete JavaFX application source code (`App.java`, `Main.java`, `TempRecord.java`, `UnitDTO.java`).
+* DAO layer and database connectivity implementation (`DBConnection.java`, `TempRecordDao.java`, `init.sql`).
+* Localization resource bundles (`MessagesBundle_*.properties` for `fi`, `en`, `ja`, `sv`, `ar`).
 * Comprehensive JUnit 5 unit test suite for DAOs, business logic, and entities.
-* CI/CD automation configuration files (`Dockerfile`, `Jenkinsfile`, `pom.xml`).
+* CI/CD automation configuration files (`Dockerfile`, `Jenkinsfile`, `deployment.yaml`, `pom.xml`).
 * Submission of the GitHub repository link in Oma.
 
 ---
@@ -31,13 +33,14 @@ Temperature conversions across different scale units (Celsius, Fahrenheit, Kelvi
 
 | Category | Technology / Tool | Usage in Project |
 | :--- | :--- | :--- |
-| **Programming Language** | Java (JDK 17/21) | Core business logic and entities |
-| **GUI Framework** | JavaFX | Desktop user interface (`Application.launch`) |
-| **Build System** | Apache Maven | Build management and dependency resolution (`pom.xml`) |
-| **Database & Persistence** | JDBC / SQL | Persistent storage (`DBConnection`, `TempRecordDao`, `TemperatureUnitDAO`) |
-| **Testing & Coverage** | JUnit 5 & JaCoCo | Automated unit testing and coverage reports |
+| **Programming Language** | Java (JDK 17) | Core business logic, DAO implementation, and UI |
+| **GUI Framework** | JavaFX 25 | Desktop user interface and RTL orientation handling |
+| **Build System** | Apache Maven | Build management, dependency resolution, and JaCoCo plugin |
+| **Database & Persistence** | MariaDB / JDBC | Persistent storage (`DBConnection`, `TempRecordDao`, `init.sql`) |
+| **Testing & Coverage** | JUnit 5 & JaCoCo | Automated unit testing and coverage reporting |
 | **Continuous Integration** | Jenkins | CI/CD build pipeline (`Jenkinsfile`) |
-| **Containerization** | Docker | Application deployment container (`Dockerfile`) |
+| **Containerization** | Docker | Application deployment container with X11 GUI support (`Dockerfile`) |
+| **Orchestration** | Kubernetes / Minikube | Container deployment management and pod orchestration |
 | **IDE / Version Control** | IntelliJ IDEA / Git | Development environment and source code management |
 
 ---
@@ -46,21 +49,46 @@ Temperature conversions across different scale units (Celsius, Fahrenheit, Kelvi
 
 ### Architecture Overview
 The application follows a modular **Model-View-Controller (MVC) / DAO** architectural pattern:
-* **Entities (Model):** `TempRecord.java`, `TemperatureUnit.java`, and `TemperatureConverter.java` encapsulate data structures and conversion logic.
-* **Database Layer (DAO):** `TempRecordDao.java` and `TemperatureUnitDAO.java` handle persistent operations through `DBConnection.java`.
-* **View & Controller:** `App.java` and `Main.java` initialize and start the JavaFX UI lifecycle via `Application.launch()`.
+* **Entities (Model / DTO):** `TempRecord.java` and `UnitDTO.java` encapsulate data structures and transfer localized database values.
+* **Database Layer (DAO):** `TempRecordDao.java` handles persistent operations through `DBConnection.java` using environment-aware host configuration (`host.docker.internal`).
+* **View & Controller:** `Main.java` initializes the JavaFX UI lifecycle via `Application.launch()`, updates static texts via `ResourceBundle`, and manages `NodeOrientation`.
 
 ### Key Implementation Decisions
 1. **Application Launch Refactoring:** Refactored the entry point to invoke `Application.launch()` inside `Main.java` / `App.java` to ensure proper JavaFX runtime initialization.
-2. **Temperature Conversion Routines:** `TemperatureConverter.java` houses mathematical conversion functions across unit scales (including Kelvin).
-3. **Database Layer Decoupling:** Isolated raw SQL operations behind DAO interfaces and parameterized queries to prevent SQL injection vulnerabilities.
+2. **Dynamic Localization:** Static UI components load via standard Java `ResourceBundle` files (`MessagesBundle`), while dynamic unit labels and tooltips are fetched dynamically from the localized database tables.
+3. **Arabic Right-to-Left (RTL) Layout:** Automatically changes node layout direction using `root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT)` whenever the Arabic locale (`ar`) is selected.
 
 ---
 
-## 4. Testing & Quality Assurance Steps
+## 4. Database Localization Strategy
+
+### Chosen Approach: Translation Table Approach
+To support dynamic multi-language localizations (`fi`, `en`, `ja`, `sv`, `ar`) for temperature unit labels and descriptions stored in the database, we implemented the **Translation Table Approach** (Separate Translation Table pattern). This architectural pattern separates base unit entities from localized textual attributes.
+
+### Database Schema Structure
+
+```sql
+-- Base table for unit entities
+CREATE TABLE temperature_units (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_code VARCHAR(10) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Translation table for localized descriptions
+CREATE TABLE temperature_unit_translations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_id INT NOT NULL,
+    lang VARCHAR(5) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    FOREIGN KEY (unit_id) REFERENCES temperature_units(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_unit_lang (unit_id, lang)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+## 5. Testing & Quality Assurance Steps
 
 ### Automated Testing & Coverage Report
-Automated unit testing is performed using **JUnit 5**, verifying conversion algorithms, entity states, and database interactions:
+Automated unit testing is performed using **JUnit 5**, verifying conversion algorithms, entity states, DAO operations, and database connections:
 * `TemperatureTest.java`
 * `TempRecordTest.java`
 * `TemperatureUnitTest.java`
@@ -69,6 +97,8 @@ Automated unit testing is performed using **JUnit 5**, verifying conversion algo
 
 Run unit tests locally and generate the JaCoCo test report:
 ```bash
+# Run tests
 mvn clean test
 
-https://users.metropolia.fi/~sidiiqm/Test/target/site/jacoco/
+# Generate JaCoCo coverage report
+mvn jacoco:report
