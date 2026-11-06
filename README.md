@@ -60,7 +60,26 @@ The application follows a modular **Model-View-Controller (MVC) / DAO** architec
 
 ---
 
-## 4. Database Localization Strategy
+## 4. Testing & Quality Assurance Steps
+
+### Automated Testing & Coverage Report
+Automated unit testing is performed using **JUnit 5**, verifying conversion algorithms, entity states, DAO operations, and database connections:
+* `TemperatureTest.java`
+* `TempRecordTest.java`
+* `TemperatureUnitTest.java`
+* `TempRecordDaoTest.java`
+* `TemperatureUnitDAOTest.java`
+
+Run unit tests locally and generate the JaCoCo test report:
+```bash
+# Run tests
+mvn clean test
+
+# Generate JaCoCo coverage report
+mvn jacoco:report
+
+```
+## 5. Database Localization Strategy
 
 ### Chosen Approach: Translation Table Approach
 To support dynamic multi-language localizations (`fi`, `en`, `ja`, `sv`, `ar`) for temperature unit labels and descriptions stored in the database, we implemented the **Translation Table Approach** (Separate Translation Table pattern). This architectural pattern separates base unit entities from localized textual attributes.
@@ -84,21 +103,3 @@ CREATE TABLE temperature_unit_translations (
     FOREIGN KEY (unit_id) REFERENCES temperature_units(id) ON DELETE CASCADE,
     UNIQUE KEY unique_unit_lang (unit_id, lang)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-## 5. Testing & Quality Assurance Steps
-
-### Automated Testing & Coverage Report
-Automated unit testing is performed using **JUnit 5**, verifying conversion algorithms, entity states, DAO operations, and database connections:
-* `TemperatureTest.java`
-* `TempRecordTest.java`
-* `TemperatureUnitTest.java`
-* `TempRecordDaoTest.java`
-* `TemperatureUnitDAOTest.java`
-
-Run unit tests locally and generate the JaCoCo test report:
-```bash
-# Run tests
-mvn clean test
-
-# Generate JaCoCo coverage report
-mvn jacoco:report
