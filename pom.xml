@@ -17,6 +17,7 @@
         <javafx.version>21.0.2</javafx.version>
         <mockito.version>5.11.0</mockito.version>
         <bytebuddy.version>1.14.12</bytebuddy.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <dependencies>
@@ -110,6 +111,27 @@
                 </configuration>
             </plugin>
 
+            <!-- JaCoCo Maven Plugin (Lisätty) -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Maven Surefire Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -117,6 +139,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <argLine>
+                        @{argLine}
                         -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${bytebuddy.version}/byte-buddy-agent-${bytebuddy.version}.jar
                         -XX:+EnableDynamicAgentLoading
                     </argLine>

@@ -57,64 +57,73 @@ public class TempRecordDao {
 
     public List<TempRecord> getAll() {
         List<TempRecord> records = new ArrayList<>();
-        String sql = """
-                SELECT r.id, r.input_value, u1.unit_code AS input_unit, 
-                       r.converted_value, u2.unit_code AS converted_unit 
-                FROM temp_records r
-                JOIN temperature_units u1 ON r.input_unit_id = u1.id
-                JOIN temperature_units u2 ON r.converted_unit_id = u2.id
-                ORDER BY r.id DESC
-            """;
+        String sql = "SELECT * FROM temp_records ORDER BY id DESC";
 
-        try {
-            Connection conn = getConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(sql);
-                 ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
+            while (rs.next()) {
+                records.add(new TempRecord(
+                        rs.getInt("id"),
+                        rs.getDouble("input_value"),
+                        rs.getString("input_unit_id"),
+                        rs.getDouble("converted_value"),
+                        rs.getString("converted_unit_id")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Virhe haettaessa tietoja: " + e.getMessage());
+        }
+        return records;
+    }
+    public List<UnitDTO> getUnitsByLanguage(String langCode) {
+        List<UnitDTO> list = new ArrayList<>();
+        String sql = "SELECT u.id, u.unit_code, t.name, t.description " +
+                "FROM temperature_units u " +
+                "JOIN temperature_unit_translations t ON u.id = t.unit_id " +
+                "WHERE t.lang = ?";
+
+        // Avataan yhteys ja PreparedStatement suoraan try-lohkossa
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, langCode);
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    records.add(new TempRecord(
+                    list.add(new UnitDTO(
                             rs.getInt("id"),
-                            rs.getDouble("input_value"),
-                            rs.getString("input_unit"),
-                            rs.getDouble("converted_value"),
-                            rs.getString("converted_unit")
+                            rs.getString("unit_code"),
+                            rs.getString("name"),
+                            rs.getString("description")
                     ));
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Virhe haettaessa yksiköitä: " + e.getMessage());
         }
-        return records;
+        return list;
     }
 
-    public List<UnitDTO> getUnitsByLanguage(String langCode) {
-        List<UnitDTO> units = new ArrayList<>();
+    public String getTranslation(String key, String lang) {
+        String sql = "SELECT translation_text FROM ui_translations WHERE translation_key = ? AND lang = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        String sql = """
-            SELECT u.id, u.unit_code, ut.name, ut.description 
-            FROM temperature_units u
-            JOIN temperature_unit_translations ut ON u.id = ut.unit_id
-            WHERE ut.lang = ?
-        """;
+            stmt.setString(1, key);
+            stmt.setString(2, lang);
 
-        try {
-            Connection conn = getConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, langCode);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    while (rs.next()) {
-                        units.add(new UnitDTO(
-                                rs.getInt("id"),
-                                rs.getString("unit_code"),
-                                rs.getString("name"),
-                                rs.getString("description")
-                        ));
-                    }
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("translation_text");
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Virhe haettaessa käännöstä avaimelle '" + key + "': " + e.getMessage());
         }
-        return units;
+
+
+        return key;
+
     }
 }

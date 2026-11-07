@@ -32,6 +32,7 @@ public class Main extends Application {
     private final ComboBox<UnitDTO> unitComboBox = new ComboBox<>();
     private VBox root;
     private ResourceBundle rb;
+    private String currentLangCode = "fi";
 
     @Override
     public void start(Stage primaryStage) {
@@ -44,7 +45,6 @@ public class Main extends Application {
         convertf.setOnAction(e -> convertF());
         convertc.setOnAction(e -> convertC());
         convertk.setOnAction(e -> convertK());
-
 
         convertInput.setCellValueFactory(new PropertyValueFactory<>("inputValue"));
         convertResult.setCellValueFactory(new PropertyValueFactory<>("convertedValue"));
@@ -67,13 +67,14 @@ public class Main extends Application {
             double celsius = Double.parseDouble(inputField.getText());
             double fahrenheit = (celsius * 9 / 5) + 32;
 
-            resultLabel.setText(String.format("%s: %.2f °F", rb.getString("result"), fahrenheit));
+            String resultText = tempRecordDao.getTranslation("result", currentLangCode);
+            resultLabel.setText(String.format("%s: %.2f °F", resultText, fahrenheit));
 
             TempRecord record = new TempRecord(0, celsius, "C", fahrenheit, "F");
             tempRecordDao.save(record);
             refreshTable();
         } catch (NumberFormatException e) {
-            resultLabel.setText(rb.getString("error_invalid_input"));
+            resultLabel.setText(tempRecordDao.getTranslation("error_invalid_input", currentLangCode));
         }
     }
 
@@ -82,13 +83,14 @@ public class Main extends Application {
             double fahrenheit = Double.parseDouble(inputField.getText());
             double celsius = (fahrenheit - 32) * 5 / 9;
 
-            resultLabel.setText(String.format("%s: %.2f °C", rb.getString("result"), celsius));
+            String resultText = tempRecordDao.getTranslation("result", currentLangCode);
+            resultLabel.setText(String.format("%s: %.2f °C", resultText, celsius));
 
             TempRecord record = new TempRecord(0, fahrenheit, "F", celsius, "C");
             tempRecordDao.save(record);
             refreshTable();
         } catch (NumberFormatException e) {
-            resultLabel.setText(rb.getString("error_invalid_input"));
+            resultLabel.setText(tempRecordDao.getTranslation("error_invalid_input", currentLangCode));
         }
     }
 
@@ -97,13 +99,14 @@ public class Main extends Application {
             double kelvin = Double.parseDouble(inputField.getText());
             double celsius = kelvin - 273.15;
 
-            resultLabel.setText(String.format("%s: %.2f °C", rb.getString("result"), celsius));
+            String resultText = tempRecordDao.getTranslation("result", currentLangCode);
+            resultLabel.setText(String.format("%s: %.2f °C", resultText, celsius));
 
             TempRecord record = new TempRecord(0, kelvin, "K", celsius, "C");
             tempRecordDao.save(record);
             refreshTable();
         } catch (NumberFormatException e) {
-            resultLabel.setText(rb.getString("error_invalid_input"));
+            resultLabel.setText(tempRecordDao.getTranslation("error_invalid_input", currentLangCode));
         }
     }
 
@@ -118,26 +121,31 @@ public class Main extends Application {
             case "English" -> new Locale("en", "US");
             case "Japani" -> new Locale("ja", "JP");
             case "Ruotsi" -> new Locale("sv", "SE");
-            case "Arabia" -> new Locale("ar", "AR");default -> new Locale("fi", "FI");
+            case "Arabia" -> new Locale("ar", "AR");
+            default -> new Locale("fi", "FI");
         };
 
-
+        currentLangCode = locale.getLanguage();
         rb = ResourceBundle.getBundle("MessagesBundle", locale);
+
+
+        String resultText = tempRecordDao.getTranslation("result", currentLangCode);
+        String tableInputText = tempRecordDao.getTranslation("table_input", currentLangCode);
+        String tableResultText = tempRecordDao.getTranslation("table_result", currentLangCode);
+
 
         langSelectLabel.setText(rb.getString("select-language"));
         inputField.setPromptText(rb.getString("prompt_celsius"));
         convertf.setText(rb.getString("prompt_fahrenheit"));
         convertc.setText(rb.getString("prompt_celsius"));
         convertk.setText(rb.getString("prompt_kelvin"));
-        resultLabel.setText(rb.getString("result") + ": ");
 
 
-        convertInput.setText(rb.getString("table_input"));
-        convertResult.setText(rb.getString("table_result"));
+        resultLabel.setText(resultText + ": ");
+        convertInput.setText(tableInputText);
+        convertResult.setText(tableResultText);
 
-
-        String langCode = locale.getLanguage();
-        List<UnitDTO> dbUnits = tempRecordDao.getUnitsByLanguage(langCode);
+        List<UnitDTO> dbUnits = tempRecordDao.getUnitsByLanguage(currentLangCode);
 
         unitComboBox.getItems().clear();
         unitComboBox.getItems().addAll(dbUnits);
@@ -145,15 +153,13 @@ public class Main extends Application {
             unitComboBox.setValue(dbUnits.get(0));
         }
 
-
         if (dbUnits.size() >= 3) {
             convertc.setTooltip(new Tooltip(dbUnits.get(0).getDescription())); // Celsius
             convertf.setTooltip(new Tooltip(dbUnits.get(1).getDescription())); // Fahrenheit
             convertk.setTooltip(new Tooltip(dbUnits.get(2).getDescription())); // Kelvin
         }
 
-
-        if ("ar".equals(langCode)) {
+        if ("ar".equals(currentLangCode)) {
             root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         } else {
             root.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
