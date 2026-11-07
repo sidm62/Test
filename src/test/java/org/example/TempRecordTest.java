@@ -20,19 +20,22 @@ public class TempRecordTest {
 
         record.setId(2);
         record.setInputValue(100.0);
-        record.setInputUnit("C");
-        record.setConvertedValue(212.0);
-        record.setConvertedUnit("F");
+        record.setInputUnit("F");
+        record.setConvertedValue(373.15);
+        record.setConvertedUnit("K");
 
         assertEquals(2, record.getId());
         assertEquals(100.0, record.getInputValue(), 0.001);
-        assertEquals(212.0, record.getConvertedValue(), 0.001);
+        assertEquals("F", record.getInputUnit());
+        assertEquals(373.15, record.getConvertedValue(), 0.001);
+        assertEquals("K", record.getConvertedUnit());
     }
 
     @Test
     @DisplayName("toString muotoilee merkkijonon kahden desimaalin tarkkuudella")
     public void testToString() {
         TempRecord record = new TempRecord(1, 25.5, "C", 77.9, "F");
-        assertEquals("25,50 C = 77,90 F", record.toString().replace('.', ',')); // Riippuen lokaalista
+        String normalizedResult = record.toString().replace(',', '.');
+        assertEquals("25.50 C = 77.90 F", normalizedResult);
     }
 }
