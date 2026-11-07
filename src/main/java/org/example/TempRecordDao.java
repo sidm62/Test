@@ -59,24 +59,27 @@ public class TempRecordDao {
         List<TempRecord> records = new ArrayList<>();
         String sql = "SELECT * FROM temp_records ORDER BY id DESC";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try {
+            Connection conn = getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) {
-                records.add(new TempRecord(
-                        rs.getInt("id"),
-                        rs.getDouble("input_value"),
-                        rs.getString("input_unit_id"),
-                        rs.getDouble("converted_value"),
-                        rs.getString("converted_unit_id")
-                ));
+                while (rs.next()) {
+                    records.add(new TempRecord(
+                            rs.getInt("id"),
+                            rs.getDouble("input_value"),
+                            rs.getString("input_unit_id"),
+                            rs.getDouble("converted_value"),
+                            rs.getString("converted_unit_id")
+                    ));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Virhe haettaessa tietoja: " + e.getMessage());
         }
         return records;
     }
+
     public List<UnitDTO> getUnitsByLanguage(String langCode) {
         List<UnitDTO> list = new ArrayList<>();
         String sql = "SELECT u.id, u.unit_code, t.name, t.description " +
@@ -84,19 +87,20 @@ public class TempRecordDao {
                 "JOIN temperature_unit_translations t ON u.id = t.unit_id " +
                 "WHERE t.lang = ?";
 
-        // Avataan yhteys ja PreparedStatement suoraan try-lohkossa
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try {
+            Connection conn = getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, langCode);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new UnitDTO(
-                            rs.getInt("id"),
-                            rs.getString("unit_code"),
-                            rs.getString("name"),
-                            rs.getString("description")
-                    ));
+                stmt.setString(1, langCode);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        list.add(new UnitDTO(
+                                rs.getInt("id"),
+                                rs.getString("unit_code"),
+                                rs.getString("name"),
+                                rs.getString("description")
+                        ));
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -107,23 +111,23 @@ public class TempRecordDao {
 
     public String getTranslation(String key, String lang) {
         String sql = "SELECT translation_text FROM ui_translations WHERE translation_key = ? AND lang = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try {
+            Connection conn = getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, key);
-            stmt.setString(2, lang);
+                stmt.setString(1, key);
+                stmt.setString(2, lang);
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("translation_text");
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("translation_text");
+                    }
                 }
             }
         } catch (SQLException e) {
             System.err.println("Virhe haettaessa käännöstä avaimelle '" + key + "': " + e.getMessage());
         }
 
-
         return key;
-
     }
 }

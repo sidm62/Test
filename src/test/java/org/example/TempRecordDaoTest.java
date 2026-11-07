@@ -34,7 +34,6 @@ public class TempRecordDaoTest {
 
     @Test
     public void testSaveSuccess() throws SQLException {
-        // Mockataan yksiköiden haku (C ja F) ja lisäyksen onnistuminen
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt("id")).thenReturn(1);
         when(statement.executeUpdate()).thenReturn(1);
@@ -46,7 +45,6 @@ public class TempRecordDaoTest {
 
     @Test
     public void testSaveFailureWhenUnitNotFound() throws SQLException {
-
         when(resultSet.next()).thenReturn(false);
 
         TempRecord record = new TempRecord(0, 20.0, "UNKNOWN", 68.0, "F");
@@ -56,17 +54,17 @@ public class TempRecordDaoTest {
 
     @Test
     public void testGetAll() throws SQLException {
-
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getInt("id")).thenReturn(1);
         when(resultSet.getDouble("input_value")).thenReturn(20.0);
-        when(resultSet.getString("input_unit")).thenReturn("C");
+        when(resultSet.getString("input_unit_id")).thenReturn("C");
         when(resultSet.getDouble("converted_value")).thenReturn(68.0);
-        when(resultSet.getString("converted_unit")).thenReturn("F");
+        when(resultSet.getString("converted_unit_id")).thenReturn("F");
 
         List<TempRecord> list = dao.getAll();
 
         assertEquals(1, list.size());
         assertEquals("C", list.get(0).getInputUnit());
+        assertEquals("F", list.get(0).getConvertedUnit());
     }
 }
