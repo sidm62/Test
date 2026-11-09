@@ -80,7 +80,8 @@ mvn jacoco:report
 
 ```
 ### 5. Database Localization Strategy
-Chosen Approach: Translation Table Pattern
+
+### Chosen Approach: Translation Table Pattern
 To support dynamic, scalable multi-language localization (FI, EN, JA, SV, AR) for database-stored entities like temperature units and UI strings, we implemented the Separate Translation Table Approach.
 
 Instead of adding language-specific columns to the base entity table (e.g., name_fi, name_ja), this design separates core domain entity metadata from localized textual representation.
