@@ -26,4 +26,4 @@ RUN wget https://download2.gluonhq.com/openjfx/25/openjfx-25_linux-x64_bin-sdk.z
 COPY target/Test-1.0-SNAPSHOT.jar app.jar
 
 # Käynnistetään Xvfb virtuaalinäytölle :99 ja ajetaan Java-sovellus sen sisällä
-ENTRYPOINT ["sh", "-c", "Xvfb :99 -screen 0 1024x768x24 & DISPLAY=:99 java --enable-native-access=javafx.graphics -Djava.library.path=/app/javafx-sdk-25/lib --module-path /app/javafx-sdk-25/lib --add-modules javafx.controls,javafx.fxml -Dprism.order=sw -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "Xvfb :99 -screen 0 1024x768x24 & sleep 1 && DISPLAY=:99 exec java --enable-native-access=javafx.graphics -Djava.library.path=/app/javafx-sdk-25/lib --module-path /app/javafx-sdk-25/lib --add-modules javafx.controls,javafx.fxml -Dprism.order=sw -jar app.jar"]
