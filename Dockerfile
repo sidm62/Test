@@ -2,7 +2,7 @@ FROM eclipse-temurin:25-jdk-jammy
 
 WORKDIR /app
 
-# Asennetaan tarvittavat järjestelmäriippuvuudet (GTK3 & X11)
+# Asennetaan tarvittavat järjestelmäriippuvuudet (GTK3, X11 & Japanilaiset CJK-fontit)
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     libglx-mesa0 \
     libgtk-3-0 \
     fonts-dejavu \
+    fonts-noto-cjk \
     && rm -rf /var/lib/apt/lists/*
 
 # Lataa OpenJFX 25 Linux SDK (purkaa automaattisesti kansioon javafx-sdk-25)
