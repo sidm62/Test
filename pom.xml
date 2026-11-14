@@ -111,11 +111,16 @@
                 </configuration>
             </plugin>
 
-            <!-- JaCoCo Maven Plugin (Lisätty) -->
+            <!-- JaCoCo Maven Plugin (Ekskloitu java.sql vastustamattomien Java 25 virheiden ehkäisemiseksi) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>java/sql/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
