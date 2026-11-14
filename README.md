@@ -79,11 +79,21 @@ mvn clean test
 mvn jacoco:report
 
 ```
-## 5. Database Localization Strategy
+### 5. Database Localization Strategy
 
-### Chosen Approach: Translation Table Approach
-To support dynamic multi-language localizations (`fi`, `en`, `ja`, `sv`, `ar`) for temperature unit labels and descriptions stored in the database, we implemented the **Translation Table Approach** (Separate Translation Table pattern). This architectural pattern separates base unit entities from localized textual attributes.
+### Chosen Approach: Translation Table Pattern
+To support dynamic, scalable multi-language localization (FI, EN, JA, SV, AR) for database-stored entities like temperature units and UI strings, we implemented the Separate Translation Table Approach.
 
+Instead of adding language-specific columns to the base entity table (e.g., name_fi, name_ja), this design separates core domain entity metadata from localized textual representation.
+
+Architectural Advantages & Justification
+High Scalability & Maintainability: Adding support for new languages (e.g., French or Chinese) requires zero schema modifications or DDL migrations—simply insert new rows into the translation table.
+
+Storage & Query Efficiency: Keeps the core temperature_units table minimal and fast to index.
+
+Data Integrity: Cascade deletions (ON DELETE CASCADE) automatically clean up translation records when a unit is removed. The composite unique constraint (unique_unit_lang) prevents duplicate translation entries for the same language.
+
+Full CJK & UTF-8 Compatibility: Built with utf8mb4 encoding and utf8mb4_unicode_ci collation to natively support multi-byte CJK (Japanese), Arabic, and Nordic characters across all GUI environments.
 ### Database Schema Structure
 
 ```sql
