@@ -2,22 +2,16 @@ pipeline {
     agent any
 
     environment {
-        PATH        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
-        Path        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.Path}"
-        JAVA_HOME   = 'C:\\Program Files\\Java\\jdk-21'
+        JAVA_HOME        = 'C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.13.9-hotspot'
+        PATH             = "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.13.9-hotspot\\bin;C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
+        Path             = "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.13.9-hotspot\\bin;C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.Path}"
         SONARQUBE_SERVER = 'Sidiiq Mohamed'
-        DOCKER_USER = 'sidiiqm'
-        IMAGE_NAME  = 'temperature-converter'
-        IMAGE_TAG   = 'latest'
+        DOCKER_USER      = 'sidiiqm'
+        IMAGE_NAME       = 'temperature-converter'
+        IMAGE_TAG        = 'latest'
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master', url: 'https://github.com/sidm62/Test.git'
-            }
-        }
-
         stage('Build & Test') {
             steps {
                 bat 'mvn clean package org.jacoco:jacoco-maven-plugin:report -B'
