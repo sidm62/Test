@@ -30,12 +30,12 @@ pipeline {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv("${env.SONARQUBE_SERVER}") {
                         bat """
-                            mvn sonar:sonar ^
-                            -Dsonar.projectKey=temperature-converter ^
-                            -Dsonar.projectName=temperature-converter ^
-                            -Dsonar.host.url=http://localhost:9000 ^
-                            -Dsonar.token=%SONAR_TOKEN%
-                        """
+                         mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar ^
+                         -Dsonar.projectKey=temperature-converter ^
+                         -Dsonar.projectName=temperature-converter ^
+                         -Dsonar.host.url=http://localhost:9000 ^
+                         -Dsonar.token=%SONAR_TOKEN%
+                     """
                     }
                 }
             }
