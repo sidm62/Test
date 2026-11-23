@@ -2,7 +2,10 @@ pipeline {
     agent any
 
     environment {
-        PATH        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
+        PATH        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.PATH}"
+        Path        = "C:\\Users\\sidru\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\sidru\\Downloads\\apache-maven-3.9.16-bin\\apache-maven-3.9.16\\bin;${env.Path}"
+        JAVA_HOME   = 'C:\\Program Files\\Java\\jdk-21'
+        SONARQUBE_SERVER = 'Sidiiq Mohamed'
         DOCKER_USER = 'sidiiqm'
         IMAGE_NAME  = 'temperature-converter'
         IMAGE_TAG   = 'latest'
@@ -17,8 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Ajetaan kääntö, testit ja JaCoCo-raportointi
-                bat 'mvn clean package org.jacoco:jacoco-maven-plugin:report'
+                bat 'mvn clean package org.jacoco:jacoco-maven-plugin:report -B'
             }
         }
 
@@ -26,6 +28,22 @@ pipeline {
             steps {
                 junit '**/target/surefire-reports/*.xml'
                 jacoco execPattern: '**/target/jacoco.exec'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv("${env.SONARQUBE_SERVER}") {
+                        bat """
+                            mvn sonar:sonar ^
+                            -Dsonar.projectKey=temperature-converter ^
+                            -Dsonar.projectName=temperature-converter ^
+                            -Dsonar.host.url=http://localhost:9000 ^
+                            -Dsonar.token=%SONAR_TOKEN%
+                        """
+                    }
+                }
             }
         }
 
@@ -38,7 +56,6 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'HUB_USER', passwordVariable: 'HUB_PASS')]) {
-                    // Turvallinen tapa syöttää salasana Windows CMD:ssä ilman rivinvaihtoa
                     bat '<nul set /p="%HUB_PASS%" | docker login -u %HUB_USER% --password-stdin'
                     bat 'docker push %DOCKER_USER%/%IMAGE_NAME%:%IMAGE_TAG%'
                 }
